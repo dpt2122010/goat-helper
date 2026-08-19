@@ -144,7 +144,7 @@ function buildProviders(): Provider[] {
       name: "Lovable AI",
       url: GATEWAY_URL,
       apiKey: lovableKey,
-      models: [GATEWAY_MODEL],
+      models: GATEWAY_MODELS,
       headers: { "Lovable-API-Key": lovableKey },
     });
   }
