@@ -109,7 +109,18 @@ function buildProviders(): Provider[] {
       models: GEMINI_MODELS,
       headers: { Authorization: `Bearer ${geminiKey}` },
     });
+    // Fallback: Google's native API, for keys/regions where the
+    // OpenAI-compatibility layer rejects the request.
+    providers.push({
+      name: "Gemini (direct)",
+      url: "https://generativelanguage.googleapis.com/v1beta/models",
+      apiKey: geminiKey,
+      models: GEMINI_MODELS,
+      headers: { "x-goog-api-key": geminiKey },
+      mode: "gemini-native",
+    });
   }
+
 
   const openaiKey = env("OPENAI_API_KEY");
   if (isUsableKey(openaiKey, "sk-")) {
