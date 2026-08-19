@@ -186,6 +186,26 @@ async function callModel(
   imageDataUrl: string,
   note?: string,
 ) {
+  if (provider.mode === "gemini-native") {
+    const match = /^data:([^;,]+);base64,(.+)$/i.exec(imageDataUrl.trim());
+    const mimeType = match?.[1] ?? "image/jpeg";
+    const data = match?.[2] ?? "";
+    return fetch(`${provider.url}/${model}:generateContent`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", ...provider.headers },
+      body: JSON.stringify({
+        systemInstruction: { parts: [{ text: SYSTEM_PROMPT }] },
+        contents: [
+          {
+            role: "user",
+            parts: [{ text: buildUserText(note) }, { inlineData: { mimeType, data } }],
+          },
+        ],
+        generationConfig: { temperature: 0.4, responseMimeType: "application/json" },
+      }),
+    });
+  }
+
   return fetch(provider.url, {
     method: "POST",
     headers: {
@@ -200,6 +220,7 @@ async function callModel(
     }),
   });
 }
+
 
 type ProviderOutcome =
   | { ok: true; report: AnalysisReport }
