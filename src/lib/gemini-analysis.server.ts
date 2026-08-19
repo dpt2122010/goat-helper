@@ -306,6 +306,7 @@ export async function analyzeWithGemini(input: AnalyzeRequest): Promise<Analysis
 
   let lastMessage = "";
   let lastStatus = 502;
+  let authMessage = "";
 
   for (const provider of providers) {
     const outcome = await runProvider(provider, input.imageDataUrl, note);
@@ -313,10 +314,18 @@ export async function analyzeWithGemini(input: AnalyzeRequest): Promise<Analysis
 
     if (outcome.fatal) throw new AnalysisError(outcome.message, outcome.status);
 
-    lastMessage = outcome.message ? `${provider.name}: ${outcome.message}` : lastMessage;
-    lastStatus = outcome.status;
+    // Credential problems from one provider shouldn't mask a real failure elsewhere.
+    if (outcome.status === 403 || /auth|api key|credential|unauthor/i.test(outcome.message)) {
+      authMessage = authMessage || `${provider.name} key is missing or invalid.`;
+    } else if (outcome.message) {
+      lastMessage = `${provider.name}: ${outcome.message}`;
+      lastStatus = outcome.status;
+    }
     console.error(`Falling back from ${provider.name}`);
   }
+
+  if (!lastMessage && authMessage) lastMessage = authMessage;
+
 
   if (lastStatus === 429) {
     throw new AnalysisError(
