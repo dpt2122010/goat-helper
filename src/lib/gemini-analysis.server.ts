@@ -74,14 +74,16 @@ function buildMessages(imageDataUrl: string, note?: string) {
 
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
-/** A generic OpenAI-compatible vision provider. */
+/** A vision provider: OpenAI-compatible by default, or Google's native API. */
 type Provider = {
   name: string;
   url: string;
   apiKey: string;
   models: string[];
   headers: Record<string, string>;
+  mode?: "openai" | "gemini-native";
 };
+
 
 /** True when the value looks like a real key, not a placeholder/empty string. */
 function isUsableKey(value: string | undefined, prefix?: string): value is string {
@@ -107,7 +109,18 @@ function buildProviders(): Provider[] {
       models: GEMINI_MODELS,
       headers: { Authorization: `Bearer ${geminiKey}` },
     });
+    // Fallback: Google's native API, for keys/regions where the
+    // OpenAI-compatibility layer rejects the request.
+    providers.push({
+      name: "Gemini (direct)",
+      url: "https://generativelanguage.googleapis.com/v1beta/models",
+      apiKey: geminiKey,
+      models: GEMINI_MODELS,
+      headers: { "x-goog-api-key": geminiKey },
+      mode: "gemini-native",
+    });
   }
+
 
   const openaiKey = env("OPENAI_API_KEY");
   if (isUsableKey(openaiKey, "sk-")) {
@@ -173,6 +186,26 @@ async function callModel(
   imageDataUrl: string,
   note?: string,
 ) {
+  if (provider.mode === "gemini-native") {
+    const match = /^data:([^;,]+);base64,(.+)$/i.exec(imageDataUrl.trim());
+    const mimeType = match?.[1] ?? "image/jpeg";
+    const data = match?.[2] ?? "";
+    return fetch(`${provider.url}/${model}:generateContent`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", ...provider.headers },
+      body: JSON.stringify({
+        systemInstruction: { parts: [{ text: SYSTEM_PROMPT }] },
+        contents: [
+          {
+            role: "user",
+            parts: [{ text: buildUserText(note) }, { inlineData: { mimeType, data } }],
+          },
+        ],
+        generationConfig: { temperature: 0.4, responseMimeType: "application/json" },
+      }),
+    });
+  }
+
   return fetch(provider.url, {
     method: "POST",
     headers: {
@@ -187,6 +220,7 @@ async function callModel(
     }),
   });
 }
+
 
 type ProviderOutcome =
   | { ok: true; report: AnalysisReport }
@@ -216,8 +250,13 @@ async function runProvider(
       if (response.ok) {
         const payload = (await response.json()) as {
           choices?: { message?: { content?: string } }[];
+          candidates?: { content?: { parts?: { text?: string }[] } }[];
         };
-        const raw = payload.choices?.[0]?.message?.content ?? "";
+        const raw =
+          payload.choices?.[0]?.message?.content ??
+          payload.candidates?.[0]?.content?.parts?.map((p) => p.text ?? "").join("") ??
+          "";
+
         if (!raw) {
           lastMessage = "The analysis engine returned an empty report.";
           lastStatus = 502;
@@ -242,8 +281,9 @@ async function runProvider(
         providerMessage = body.slice(0, 300);
       }
       console.error(`${provider.name} error`, model, response.status, providerMessage);
-      lastMessage = providerMessage;
+      lastMessage = providerMessage || `HTTP ${response.status} from ${provider.name}.`;
       lastStatus = response.status;
+
 
       // Model unavailable for this key -> next model of the same provider.
       const modelProblem =
