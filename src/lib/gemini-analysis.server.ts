@@ -74,14 +74,16 @@ function buildMessages(imageDataUrl: string, note?: string) {
 
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
-/** A generic OpenAI-compatible vision provider. */
+/** A vision provider: OpenAI-compatible by default, or Google's native API. */
 type Provider = {
   name: string;
   url: string;
   apiKey: string;
   models: string[];
   headers: Record<string, string>;
+  mode?: "openai" | "gemini-native";
 };
+
 
 /** True when the value looks like a real key, not a placeholder/empty string. */
 function isUsableKey(value: string | undefined, prefix?: string): value is string {
