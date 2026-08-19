@@ -15,7 +15,7 @@ const GEMINI_MODELS = [
 
 const GEMINI_URL = "https://generativelanguage.googleapis.com/v1beta/openai/chat/completions";
 
-const GATEWAY_MODEL = "google/gemini-3.7-flash";
+const GATEWAY_MODELS = ["google/gemini-2.5-flash", "google/gemini-2.5-flash-lite"];
 const GATEWAY_URL = "https://ai.gateway.lovable.dev/v1/chat/completions";
 
 export type AnalyzeRequest = { imageDataUrl: string; note?: string | undefined };
