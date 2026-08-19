@@ -281,8 +281,9 @@ async function runProvider(
         providerMessage = body.slice(0, 300);
       }
       console.error(`${provider.name} error`, model, response.status, providerMessage);
-      lastMessage = providerMessage;
+      lastMessage = providerMessage || `HTTP ${response.status} from ${provider.name}.`;
       lastStatus = response.status;
+
 
       // Model unavailable for this key -> next model of the same provider.
       const modelProblem =
