@@ -248,14 +248,10 @@ async function runProvider(
         };
       }
       if (response.status === 400) {
-        // The request itself is wrong — no other provider will accept it either.
-        return {
-          ok: false,
-          status: 400,
-          fatal: true,
-          message:
-            providerMessage || "The request was rejected. Check the image size and format.",
-        };
+        // Could be a provider-specific rejection — try the next model/provider.
+        lastMessage = providerMessage || `${provider.name} rejected the request.`;
+        lastStatus = 400;
+        break;
       }
       if (response.status === 402) {
         return {
