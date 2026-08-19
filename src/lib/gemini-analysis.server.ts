@@ -250,8 +250,13 @@ async function runProvider(
       if (response.ok) {
         const payload = (await response.json()) as {
           choices?: { message?: { content?: string } }[];
+          candidates?: { content?: { parts?: { text?: string }[] } }[];
         };
-        const raw = payload.choices?.[0]?.message?.content ?? "";
+        const raw =
+          payload.choices?.[0]?.message?.content ??
+          payload.candidates?.[0]?.content?.parts?.map((p) => p.text ?? "").join("") ??
+          "";
+
         if (!raw) {
           lastMessage = "The analysis engine returned an empty report.";
           lastStatus = 502;
