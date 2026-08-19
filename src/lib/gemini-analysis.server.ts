@@ -83,10 +83,20 @@ type Provider = {
   headers: Record<string, string>;
 };
 
+/** True when the value looks like a real key, not a placeholder/empty string. */
+function isUsableKey(value: string | undefined, prefix?: string): value is string {
+  if (!value) return false;
+  if (value.length < 12) return false;
+  if (/^(your|changeme|placeholder|xxx|todo|<)/i.test(value)) return false;
+  if (prefix && !value.startsWith(prefix)) return false;
+  return true;
+}
+
 /** Builds the ordered provider chain from whichever API keys are configured. */
 function buildProviders(): Provider[] {
   const providers: Provider[] = [];
   const env = (name: string) => process.env[name]?.trim();
+
 
   const geminiKey = env("GEMINI_API_KEY");
   if (geminiKey) {
