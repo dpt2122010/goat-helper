@@ -15,7 +15,7 @@ const GEMINI_MODELS = [
 
 const GEMINI_URL = "https://generativelanguage.googleapis.com/v1beta/openai/chat/completions";
 
-const GATEWAY_MODEL = "google/gemini-3.7-flash";
+const GATEWAY_MODELS = ["google/gemini-2.5-flash", "google/gemini-2.5-flash-lite"];
 const GATEWAY_URL = "https://ai.gateway.lovable.dev/v1/chat/completions";
 
 export type AnalyzeRequest = { imageDataUrl: string; note?: string | undefined };
@@ -144,7 +144,7 @@ function buildProviders(): Provider[] {
       name: "Lovable AI",
       url: GATEWAY_URL,
       apiKey: lovableKey,
-      models: [GATEWAY_MODEL],
+      models: GATEWAY_MODELS,
       headers: { "Lovable-API-Key": lovableKey },
     });
   }
@@ -248,14 +248,10 @@ async function runProvider(
         };
       }
       if (response.status === 400) {
-        // The request itself is wrong — no other provider will accept it either.
-        return {
-          ok: false,
-          status: 400,
-          fatal: true,
-          message:
-            providerMessage || "The request was rejected. Check the image size and format.",
-        };
+        // Could be a provider-specific rejection — try the next model/provider.
+        lastMessage = providerMessage || `${provider.name} rejected the request.`;
+        lastStatus = 400;
+        break;
       }
       if (response.status === 402) {
         return {
