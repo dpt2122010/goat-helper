@@ -5,17 +5,9 @@ import { SYSTEM_PROMPT } from "@/lib/analysis-prompt";
  * Gemini vision models, tried in order. Override with the GEMINI_MODEL env var.
  * If one is unavailable for the key, the next is tried automatically.
  */
-const GEMINI_MODELS = [
-  process.env["GEMINI_MODEL"]?.trim(),
-  "gemini-flash-latest",
-  "gemini-2.5-flash",
-  "gemini-2.0-flash",
-  "gemini-2.5-flash-lite",
-].filter(Boolean) as string[];
+const GEMINI_MODELS = ["gemini-3.5-flash-lite", "gemini-3.6-flash"];
 
-const GEMINI_URL = "https://generativelanguage.googleapis.com/v1beta/openai/chat/completions";
-
-const GATEWAY_MODELS = ["google/gemini-2.5-flash", "google/gemini-2.5-flash-lite"];
+const GATEWAY_MODELS = ["google/gemini-3.5-flash-lite", "google/gemini-3.6-flash"];
 const GATEWAY_URL = "https://ai.gateway.lovable.dev/v1/chat/completions";
 
 export type AnalyzeRequest = { imageDataUrl: string; note?: string | undefined };
@@ -104,18 +96,9 @@ function buildProviders(): Provider[] {
   if (isUsableKey(geminiKey)) {
     providers.push({
       name: "Gemini",
-      url: GEMINI_URL,
-      apiKey: geminiKey,
-      models: GEMINI_MODELS,
-      headers: { Authorization: `Bearer ${geminiKey}` },
-    });
-    // Fallback: Google's native API, for keys/regions where the
-    // OpenAI-compatibility layer rejects the request.
-    providers.push({
-      name: "Gemini (direct)",
       url: "https://generativelanguage.googleapis.com/v1beta/models",
       apiKey: geminiKey,
-      models: GEMINI_MODELS,
+      models: [env("GEMINI_MODEL"), ...GEMINI_MODELS].filter(Boolean) as string[],
       headers: { "x-goog-api-key": geminiKey },
       mode: "gemini-native",
     });
@@ -317,7 +300,11 @@ async function runProvider(
         };
       }
       if (response.status === 429 || response.status >= 500) {
-        await sleep(800 * (attempt + 1));
+        const retryAfter = Number(response.headers.get("Retry-After"));
+        const delay = Number.isFinite(retryAfter) && retryAfter > 0
+          ? retryAfter * 1000
+          : 800 * (attempt + 1);
+        await sleep(delay);
         continue;
       }
       break;
