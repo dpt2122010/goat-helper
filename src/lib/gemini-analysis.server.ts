@@ -99,7 +99,7 @@ function buildProviders(): Provider[] {
 
 
   const geminiKey = env("GEMINI_API_KEY");
-  if (geminiKey) {
+  if (isUsableKey(geminiKey)) {
     providers.push({
       name: "Gemini",
       url: GEMINI_URL,
@@ -110,7 +110,7 @@ function buildProviders(): Provider[] {
   }
 
   const openaiKey = env("OPENAI_API_KEY");
-  if (openaiKey) {
+  if (isUsableKey(openaiKey, "sk-")) {
     providers.push({
       name: "OpenAI",
       url: "https://api.openai.com/v1/chat/completions",
@@ -121,7 +121,7 @@ function buildProviders(): Provider[] {
   }
 
   const openrouterKey = env("OPENROUTER_API_KEY");
-  if (openrouterKey) {
+  if (isUsableKey(openrouterKey, "sk-or-")) {
     providers.push({
       name: "OpenRouter",
       url: "https://openrouter.ai/api/v1/chat/completions",
@@ -131,12 +131,16 @@ function buildProviders(): Provider[] {
         "google/gemini-2.0-flash-001",
         "anthropic/claude-3.5-sonnet",
       ].filter(Boolean) as string[],
-      headers: { Authorization: `Bearer ${openrouterKey}` },
+      headers: {
+        Authorization: `Bearer ${openrouterKey}`,
+        "HTTP-Referer": env("OPENROUTER_SITE_URL") ?? "https://lovable.dev",
+        "X-Title": env("OPENROUTER_SITE_NAME") ?? "Farmers AI",
+      },
     });
   }
 
   const groqKey = env("GROQ_API_KEY");
-  if (groqKey) {
+  if (isUsableKey(groqKey, "gsk_")) {
     providers.push({
       name: "Groq",
       url: "https://api.groq.com/openai/v1/chat/completions",
@@ -147,6 +151,7 @@ function buildProviders(): Provider[] {
       headers: { Authorization: `Bearer ${groqKey}` },
     });
   }
+
 
   const lovableKey = env("LOVABLE_API_KEY");
   if (lovableKey) {
