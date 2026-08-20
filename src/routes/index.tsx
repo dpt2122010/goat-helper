@@ -17,6 +17,8 @@ import heroFarm from "@/assets/hero-farm.jpg";
 import { Analyzer } from "@/components/analysis/analyzer";
 import { LeafClassificationModal } from "@/components/analysis/leaf-classification-modal";
 import { Button } from "@/components/ui/button";
+import OrbitingCirclesGlobe from "@/components/ui/orbiting-circles-02";
+
 
 export const Route = createFileRoute("/")({
   head: () => ({
