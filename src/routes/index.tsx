@@ -215,8 +215,23 @@ function Home() {
       </section>
 
       {/* Features */}
+      {/* Orbiting capabilities */}
+      <section className="mx-auto max-w-6xl px-4 pt-4">
+        <div className="text-center">
+          <p className="text-xs font-semibold uppercase tracking-[0.22em] text-primary">
+            One intelligent core
+          </p>
+          <h2 className="mt-3 text-3xl font-bold sm:text-4xl">
+            Every diagnostic orbits Farmer&apos;s APP
+          </h2>
+        </div>
+        <OrbitingCirclesGlobe />
+      </section>
+
+      {/* Features */}
       <section id="features" className="bg-secondary/50 py-20">
         <div className="mx-auto max-w-6xl px-4">
+
           <p className="text-xs font-semibold uppercase tracking-[0.22em] text-primary">
             AI capabilities
           </p>
