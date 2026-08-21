@@ -116,7 +116,7 @@ const FEATURES = {
     ],
     to: "/dashboard",
   },
-};
+} satisfies Record<string, Feature>;
 
 type OrbitIcon = { key: keyof typeof FEATURES; angle: number };
 
