@@ -225,7 +225,7 @@ export default function OrbitingCirclesGlobe({ className }: { className?: string
                       onClick={() => setActive(feature)}
                       title={feature.label}
                       aria-label={feature.label}
-                      className="peer pointer-events-auto flex size-11 items-center justify-center rounded-2xl border border-border/70 bg-card shadow-sm transition-colors hover:border-primary hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring md:size-14"
+                      className="pointer-events-auto flex size-11 flex-col items-center justify-center rounded-2xl border border-border/70 bg-card shadow-sm transition-colors hover:border-primary hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring md:size-14"
                       style={
                         {
                           "--counter-offset": `${iconData.angle}deg`,
@@ -234,12 +234,11 @@ export default function OrbitingCirclesGlobe({ className }: { className?: string
                       }
                     >
                       <Icon className="size-5 text-primary md:size-6" />
+                      {/* Label visible for every rotating logo */}
+                      <span className="absolute -bottom-5 whitespace-nowrap rounded-full bg-card/90 px-2 py-0.5 text-[9px] font-medium text-foreground shadow-sm backdrop-blur-sm md:-bottom-6 md:px-2.5 md:text-[10px]">
+                        {feature.label}
+                      </span>
                     </button>
-                    {/* Hover / focus label for every rotating logo */}
-                    <div className="pointer-events-none absolute left-1/2 top-full mt-2 w-40 -translate-x-1/2 rounded-xl border border-border/70 bg-card/95 p-2.5 text-center opacity-0 shadow-lg backdrop-blur-md transition-opacity duration-200 peer-hover:opacity-100 peer-focus-visible:opacity-100">
-                      <p className="text-xs font-semibold text-foreground">{feature.label}</p>
-                      <p className="mt-1 text-[10px] leading-tight text-muted-foreground">{feature.summary}</p>
-                    </div>
                   </div>
                 </div>
               );
