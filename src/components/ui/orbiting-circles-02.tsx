@@ -31,7 +31,7 @@ type Feature = {
   to: string;
 };
 
-const FEATURES: Record<string, Feature> = {
+const FEATURES = {
   leaf: {
     icon: Leaf,
     label: "Leaf Classification",
