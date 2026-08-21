@@ -219,7 +219,7 @@ export default function OrbitingCirclesGlobe({ className }: { className?: string
                     } as React.CSSProperties
                   }
                 >
-                  <div className="pointer-events-none absolute left-1/2 top-0 -translate-x-1/2 -translate-y-1/2">
+                  <div className="group pointer-events-none absolute left-1/2 top-0 -translate-x-1/2 -translate-y-1/2">
                     <button
                       type="button"
                       onClick={() => setActive(feature)}
@@ -235,6 +235,11 @@ export default function OrbitingCirclesGlobe({ className }: { className?: string
                     >
                       <Icon className="size-5 text-primary md:size-6" />
                     </button>
+                    {/* Hover / focus label for every rotating logo */}
+                    <div className="pointer-events-auto absolute left-1/2 top-full mt-2 w-40 -translate-x-1/2 rounded-xl border border-border/70 bg-card/95 p-2.5 text-center opacity-0 shadow-lg backdrop-blur-md transition-opacity duration-200 group-hover:opacity-100 group-focus-within:opacity-100">
+                      <p className="text-xs font-semibold text-foreground">{feature.label}</p>
+                      <p className="mt-1 text-[10px] leading-tight text-muted-foreground">{feature.summary}</p>
+                    </div>
                   </div>
                 </div>
               );
