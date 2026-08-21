@@ -219,13 +219,13 @@ export default function OrbitingCirclesGlobe({ className }: { className?: string
                     } as React.CSSProperties
                   }
                 >
-                  <div className="pointer-events-none absolute left-1/2 top-0 -translate-x-1/2 -translate-y-1/2">
+                  <div className="absolute left-1/2 top-0 -translate-x-1/2 -translate-y-1/2">
                     <button
                       type="button"
                       onClick={() => setActive(feature)}
                       title={feature.label}
                       aria-label={feature.label}
-                      className="pointer-events-auto flex size-11 items-center justify-center rounded-2xl border border-border/70 bg-card shadow-sm transition-colors hover:border-primary hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring md:size-14"
+                      className="pointer-events-auto relative flex size-11 flex-col items-center justify-center rounded-2xl border border-border/70 bg-card shadow-sm transition-colors hover:border-primary hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring md:size-14"
                       style={
                         {
                           "--counter-offset": `${iconData.angle}deg`,
@@ -234,6 +234,10 @@ export default function OrbitingCirclesGlobe({ className }: { className?: string
                       }
                     >
                       <Icon className="size-5 text-primary md:size-6" />
+                      {/* Label visible for every rotating logo */}
+                      <span className="absolute -bottom-5 whitespace-nowrap rounded-full bg-card/90 px-2 py-0.5 text-[9px] font-medium text-foreground shadow-sm backdrop-blur-sm md:-bottom-6 md:px-2.5 md:text-[10px]">
+                        {feature.label}
+                      </span>
                     </button>
                   </div>
                 </div>
