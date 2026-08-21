@@ -225,7 +225,7 @@ export default function OrbitingCirclesGlobe({ className }: { className?: string
                       onClick={() => setActive(feature)}
                       title={feature.label}
                       aria-label={feature.label}
-                      className="pointer-events-auto flex size-11 flex-col items-center justify-center rounded-2xl border border-border/70 bg-card shadow-sm transition-colors hover:border-primary hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring md:size-14"
+                      className="pointer-events-auto relative flex size-11 flex-col items-center justify-center rounded-2xl border border-border/70 bg-card shadow-sm transition-colors hover:border-primary hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring md:size-14"
                       style={
                         {
                           "--counter-offset": `${iconData.angle}deg`,
